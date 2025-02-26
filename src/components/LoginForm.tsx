@@ -4,31 +4,29 @@ import { TextField, Button, Box, Typography, Paper } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { registerUser } from '../features/auth/authSlice';
+import { loginUser } from '../features/auth/authSlice';
 
 interface FormInputs {
-  name: string;
   email: string;
   password: string;
 }
 
-interface RegistrationFormProps {
+interface LoginFormProps {
   onClose: () => void;
 }
 
-const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const authState = useAppSelector((state) => state.auth);
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
-    const resultAction = await dispatch(registerUser({
-      name: data.name,
+    const resultAction = await dispatch(loginUser({
       email: data.email,
       password: data.password,
     }));
-    if (registerUser.fulfilled.match(resultAction)) {
+    if (loginUser.fulfilled.match(resultAction)) {
       navigate('/boards');
     }
   };
@@ -41,7 +39,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
     >
       <Paper elevation={3} sx={{ p: 4, mt: 4, position: 'relative' }}>
         <Typography variant="h4" gutterBottom>
-          Регистрация
+          Вход
         </Typography>
         {authState.error && (
           <Typography color="error" gutterBottom>
@@ -49,14 +47,6 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
           </Typography>
         )}
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <TextField
-            label="Имя"
-            fullWidth
-            margin="normal"
-            {...register('name', { required: 'Имя обязательно' })}
-            error={!!errors.name}
-            helperText={errors.name?.message}
-          />
           <TextField
             label="Email"
             type="email"
@@ -89,7 +79,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
           />
           <Box mt={3} display="flex" justifyContent="space-between">
             <Button variant="contained" color="primary" type="submit" disabled={authState.loading}>
-              {authState.loading ? 'Регистрация...' : 'Зарегистрироваться'}
+              {authState.loading ? 'Вход...' : 'Войти'}
             </Button>
             <Button variant="outlined" color="secondary" onClick={onClose}>
               Отмена
@@ -101,4 +91,4 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onClose }) => {
   );
 };
 
-export default RegistrationForm;
+export default LoginForm;

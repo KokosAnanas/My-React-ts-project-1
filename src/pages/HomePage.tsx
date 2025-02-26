@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Typography, Box, Button } from '@mui/material';
 import { motion } from 'framer-motion';
 import RegisterButton from '../components/RegisterButton';
 import RegistrationForm from '../components/RegistrationForm';
+import LoginButton from '../components/LoginButton';
+import { useAppSelector, useAppDispatch } from '../app/hooks';
+import { logout } from '../features/auth/authSlice';
 
 const HomePage: React.FC = () => {
   const [isFormVisible, setFormVisible] = useState(false);
+  const authState = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   const handleRegisterClick = () => {
     setFormVisible(true);
@@ -13,6 +18,10 @@ const HomePage: React.FC = () => {
 
   const handleFormClose = () => {
     setFormVisible(false);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
   };
 
   return (
@@ -28,8 +37,17 @@ const HomePage: React.FC = () => {
         <Typography variant="h5" gutterBottom>
           Присоединяйтесь к нам сегодня!
         </Typography>
-        <Box mt={4}>
-          <RegisterButton onClick={handleRegisterClick} />
+        <Box mt={4} display="flex" justifyContent="center" gap={2}>
+          {authState.isAuthenticated ? (
+            <Button variant="contained" color="secondary" onClick={handleLogout}>
+              Выйти
+            </Button>
+          ) : (
+            <>
+              <RegisterButton onClick={handleRegisterClick} />
+              <LoginButton />
+            </>
+          )}
         </Box>
       </motion.div>
       {isFormVisible && <RegistrationForm onClose={handleFormClose} />}

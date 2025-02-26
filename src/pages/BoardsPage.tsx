@@ -1,6 +1,8 @@
-import React from 'react';
-import { Container, Typography, Box, Card, CardContent, List, ListItem, ListItemText } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Container, Typography, Box, Card, CardContent, List, ListItem, ListItemText, CircularProgress } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { fetchTasks } from '../features/tasks/tasksSlice';
 
 interface Board {
   name: string;
@@ -8,16 +10,44 @@ interface Board {
 }
 
 const BoardsPage: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const tasksState = useAppSelector((state) => state.tasks);
+  const authState = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (authState.isAuthenticated) {
+      dispatch(fetchTasks());
+    }
+  }, [dispatch, authState.isAuthenticated]);
+
   const boards: Board[] = [
     {
       name: 'Доска А',
-      tasks: ['Задача 1', 'Задача 2', 'Задача 3'],
+      tasks: tasksState.tasks.slice(0, 3).map(task => task.title),
     },
     {
       name: 'Доска Б',
-      tasks: ['Задача 4', 'Задача 5'],
+      tasks: tasksState.tasks.slice(3, 5).map(task => task.title),
     },
   ];
+
+  if (tasksState.loading) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 5, textAlign: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  if (tasksState.error) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 5 }}>
+        <Typography color="error" variant="h6">
+          {tasksState.error}
+        </Typography>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ mt: 5 }}>
@@ -54,4 +84,3 @@ const BoardsPage: React.FC = () => {
 };
 
 export default BoardsPage;
-
